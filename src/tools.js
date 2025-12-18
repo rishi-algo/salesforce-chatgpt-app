@@ -143,9 +143,58 @@ export async function handleToolCall({ userKey, tool, input }) {
     };
   }
 
-  
+  if (tool === "salesforce_query") {
+  const schema = z.object({
+    env: z.enum(["sandbox", "prod"]).default("sandbox"),
+    soql: z.string().min(10).max(500),
+    limit: z.number().int().min(1).max(50).optional()
+  });
+
+  const parsed = schema.safeParse(input ?? {});
+  if (!parsed.success) {
+    return {
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Invalid SOQL query input",
+        details: parsed.error.issues
+      }
+    };
+  }
+
+  const { env, soql } = parsed.data;
+
+  // Safety guard: block destructive queries
+  const forbidden = /\b(DELETE|UPDATE|UPSERT|MERGE|DROP)\b/i;
+  if (forbidden.test(soql)) {
+    return {
+      error: {
+        code: "FORBIDDEN_QUERY",
+        message: "Only read-only SOQL queries are allowed"
+      }
+    };
+  }
+
+  const resp = await sfRequest({
+    userKey,
+    env,
+    method: "GET",
+    path: `/query/?q=${encodeURIComponent(soql)}`
+  });
+
+  return resp.ok
+    ? { data: resp.json.records }
+    : {
+        error: {
+          code: "SF_ERROR",
+          message: "SOQL execution failed",
+          details: resp.json
+        }
+      };
+}
+ 
   return { error: { code: "UNKNOWN_TOOL", message: `Unknown tool: ${tool}` } };
 }
+
 
 
 
