@@ -110,7 +110,9 @@ export async function oauthCallback(req, res) {
     identityUrl: identity_url,
     orgId
   });
-
+  import { debugDumpVault } from "./vault.js";
+  debugDumpVault();
   res.send("Salesforce connected ✅ You can go back to ChatGPT.");
 }
+
 
