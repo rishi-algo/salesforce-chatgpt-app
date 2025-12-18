@@ -1,0 +1,27 @@
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { oauthStart, oauthCallback } from "./oauth.js";
+import { handleToolCall } from "./tools.js";
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(cookieParser());
+
+app.get("/health", (_, res) => res.json({ ok: true }));
+
+// OAuth
+app.get("/oauth/start", oauthStart);
+app.get("/oauth/callback", oauthCallback);
+
+// Tool call endpoint (your Apps SDK / MCP runtime will hit this)
+app.post("/tools/call", async (req, res) => {
+  const userKey = req.headers["x-user-key"] || "dev-user"; // replace with real identity
+  const { tool, input } = req.body || {};
+  const out = await handleToolCall({ userKey, tool, input });
+  res.json(out);
+});
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Server running on ${port}`));
