@@ -21,10 +21,16 @@ export async function handleToolCall({ userKey, tool, input }) {
   }
 
   if (tool === "salesforce_search") {
-    const schema = z.object({
+    /*const schema = z.object({
       env: EnvEnum,
       query: z.string().min(2).max(120),
       objects: z.array(ObjEnum).min(1).max(4),
+      limit: z.number().int().min(1).max(20).default(10)
+    }).strict();*/
+    const schema = z.object({
+      env: z.enum(["prod", "sandbox"]).default("sandbox"),
+      query: z.string().min(2).max(120),
+      objects: z.array(z.enum(["Account","Lead","Opportunity","Contact"])).min(1).max(4),
       limit: z.number().int().min(1).max(20).default(10)
     }).strict();
     const { env, query, objects, limit } = schema.parse(input);
@@ -140,5 +146,6 @@ export async function handleToolCall({ userKey, tool, input }) {
   
   return { error: { code: "UNKNOWN_TOOL", message: `Unknown tool: ${tool}` } };
 }
+
 
 
