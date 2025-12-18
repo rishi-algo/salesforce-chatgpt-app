@@ -102,6 +102,43 @@ export async function handleToolCall({ userKey, tool, input }) {
     return resp.ok ? resp.json : { error: { code: "SF_ERROR", message: "Create Task failed", details: resp.json } };
   }
 
+  if (tool === "salesforce_list_leads") {
+    const schema = z.object({
+      env: z.enum(["sandbox", "prod"]).default("sandbox"),
+      limit: z.number().int().min(1).max(50).default(10),
+      sortBy: z.enum(["CreatedDate", "LastModifiedDate"]).default("CreatedDate")
+    });
+  
+    const { env, limit, sortBy } = schema.parse(input || {});
+  
+    const soql =
+      `SELECT Id, Name, Company, Status, Email, Phone, CreatedDate ` +
+      `FROM Lead ORDER BY ${sortBy} DESC LIMIT ${limit}`;
+  
+    const resp = await sfRequest({
+      userKey,
+      env,
+      method: "GET",
+      path: `/query/?q=${encodeURIComponent(soql)}`
+    });
+  
+    if (!resp.ok) {
+      return {
+        error: {
+          code: "SF_ERROR",
+          message: "Failed to fetch leads",
+          details: resp.json
+        }
+      };
+    }
+  
+    return {
+      data: resp.json.records
+    };
+  }
+
+  
   return { error: { code: "UNKNOWN_TOOL", message: `Unknown tool: ${tool}` } };
 }
+
 
