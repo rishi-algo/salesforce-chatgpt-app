@@ -19,11 +19,13 @@ app.get("/oauth/callback", oauthCallback);
 app.post("/tools/call", async (req, res) => {
   //const userKey = req.headers["x-user-key"] || "dev-user"; // replace with real identity
   const userKey = "rishi";
-  const { tool, input } = req.body || {};
+  //const { tool, input } = req.body || {};
+  const { tool, input = {} } = req.body || {};
   const out = await handleToolCall({ userKey, tool, input });
   res.json(out);
 });
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server running on ${port}`));
+
 
