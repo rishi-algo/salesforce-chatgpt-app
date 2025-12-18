@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import crypto from "crypto";
 import { saveConnection } from "./vault.js";
+import { debugDumpVault } from "./vault.js";
 
 // In-memory state store (quick win). Replace with Redis/DB later.
 const stateStore = new Map();
@@ -100,7 +101,7 @@ export async function oauthCallback(req, res) {
   const idr = await fetch(identity_url, { headers: { Authorization: `Bearer ${access_token}` } });
   const identity = await idr.json();
   const orgId = identity.organization_id;
-
+  console.log('Rishi' + access_token);
   saveConnection({
     userKey,
     env,
@@ -110,9 +111,9 @@ export async function oauthCallback(req, res) {
     identityUrl: identity_url,
     orgId
   });
-  import { debugDumpVault } from "./vault.js";
   debugDumpVault();
   res.send("Salesforce connected ✅ You can go back to ChatGPT.");
 }
+
 
 
