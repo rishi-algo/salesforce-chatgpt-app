@@ -53,3 +53,15 @@ export function getConnection({ userKey, env }) {
 export function revokeConnection({ userKey, env }) {
   mem.delete(`${userKey}:${env}`);
 }
+
+export function debugDumpVault() {
+  console.log("🔐 VAULT CONTENTS:");
+  for (const [key, value] of mem.entries()) {
+    console.log(key, {
+      instanceUrl: value.instanceUrl,
+      orgId: value.orgId,
+      updatedAt: value.updatedAt
+    });
+  }
+}
+
