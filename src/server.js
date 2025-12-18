@@ -28,4 +28,11 @@ app.post("/tools/call", async (req, res) => {
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled Rejection:", err);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
 
