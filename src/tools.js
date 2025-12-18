@@ -14,7 +14,7 @@ const ALLOW_FIELDS = {
 
 export async function handleToolCall({ userKey, tool, input }) {
   if (tool === "salesforce_whoami") {
-    const env = input?.env || "prod"; // you can store preferred env per user if you want
+    const env = input?.env || "sandbox"; // you can store preferred env per user if you want
     const conn = getConnection({ userKey, env });
     if (!conn) return { error: { code: "NOT_CONNECTED", message: "Not connected. Run connect first." } };
     return { env, orgId: conn.orgId, instanceUrl: conn.instanceUrl, updatedAt: conn.updatedAt };
@@ -104,3 +104,4 @@ export async function handleToolCall({ userKey, tool, input }) {
 
   return { error: { code: "UNKNOWN_TOOL", message: `Unknown tool: ${tool}` } };
 }
+
