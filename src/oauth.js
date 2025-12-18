@@ -30,8 +30,8 @@ export function oauthStart(req, res) {
   const env = req.query.env === "sandbox" ? "sandbox" : "prod";
 
   // For now you used x-user-key. Keep it.
-  const userKey = req.headers["x-user-key"] || "dev-user";
-
+  //const userKey = req.headers["x-user-key"] || "dev-user";
+  const userKey = "rishi";
   const state = crypto.randomBytes(16).toString("hex");
 
   // PKCE: verifier + challenge
@@ -113,3 +113,4 @@ export async function oauthCallback(req, res) {
 
   res.send("Salesforce connected ✅ You can go back to ChatGPT.");
 }
+
